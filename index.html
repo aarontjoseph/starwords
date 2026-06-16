@@ -58,7 +58,7 @@
     border-radius:14px;padding:6px 12px;backdrop-filter:blur(3px)}
   #shields{letter-spacing:3px}
   #streak{color:var(--gold)}
-  #muteBtn{pointer-events:auto;cursor:pointer;background:rgba(13,13,40,.55);
+  #muteBtn,#voiceBtn{pointer-events:auto;cursor:pointer;background:rgba(13,13,40,.55);
     border:2px solid rgba(255,255,255,.12);border-radius:14px;color:var(--cream);
     font-size:inherit;font-family:inherit;padding:6px 12px}
 
@@ -132,6 +132,7 @@
   <div class="box" id="mission2" style="display:none"></div>
   <div style="display:flex;gap:8px;align-items:center">
     <div class="box" id="shields">🛡🛡🛡</div>
+    <button id="voiceBtn" title="voice on/off">🗣</button>
     <button id="muteBtn" title="sound on/off">🔊</button>
   </div>
 </div>
@@ -258,7 +259,7 @@ function drawCard(){
 }
 
 /* ============================================================ audio */
-let AC=null,muted=localStorage.getItem("sw_muted")==="1";
+let AC=null,muted=localStorage.getItem("sw_muted")==="1",voiceMuted=localStorage.getItem("sw_voice")==="1";
 const bgm=document.getElementById("bgm");
 bgm.volume=0.35;
 function bgmSync(){bgm.muted=muted;}
@@ -289,7 +290,7 @@ const sfx={
   hurt(){tone(300,.3,"square",.12,80);noise(.2,.15);},
 };
 function say(text,rate=0.85){
-  if(muted||!("speechSynthesis" in window))return;
+  if(muted||voiceMuted||!("speechSynthesis" in window))return;
   try{ speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);u.rate=rate;u.pitch=1.15;speechSynthesis.speak(u);
   }catch(e){}
@@ -832,6 +833,12 @@ const muteBtn=$("#muteBtn");
 function updMute(){muteBtn.textContent=muted?"🔇":"🔊";}
 muteBtn.addEventListener("click",()=>{muted=!muted;localStorage.setItem("sw_muted",muted?"1":"0");if(muted&&typeof speechSynthesis!=="undefined")speechSynthesis.cancel();bgmSync();updMute();});
 updMute();
+
+/* voice toggle */
+const voiceBtn=$("#voiceBtn");
+function updVoice(){voiceBtn.textContent=voiceMuted?"🤫":"🗣";}
+voiceBtn.addEventListener("click",()=>{voiceMuted=!voiceMuted;localStorage.setItem("sw_voice",voiceMuted?"1":"0");if(voiceMuted&&typeof speechSynthesis!=="undefined")speechSynthesis.cancel();updVoice();});
+updVoice();
 
 /* ============================================================ flow */
 async function pickPilot(c){
