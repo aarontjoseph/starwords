@@ -590,8 +590,7 @@ $("#mapBtn").addEventListener("click",()=>{
 });
 async function changePilot(c){
   pilot=c;wingmate=c==="bear"?"zeeb":"bear";
-  if(!IMGS[c]){IMGS[c]=keyOut(await loadImg(PILOTS[c].img));}
-  if(!IMGS[wingmate])loadImg(PILOTS[wingmate].img).then(function(i){IMGS[wingmate]=keyOut(i);});
+  IMGS[c]=keyOut(await loadImg(PILOTS[c].img));
   shipCv=makeShip(PILOTS[pilot].ship,IMGS[c],PILOTS[pilot].crop);
   $("#repilot").classList.add("hidden");
   level++;
