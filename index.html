@@ -180,6 +180,26 @@
   <button class="bigbtn" id="mapBtn">TO THE STAR MAP ➜</button>
 </div>
 
+<!-- PILOT SELECT (between levels) -->
+<div id="repilot" class="overlay hidden">
+  <div class="logo" style="font-size:clamp(26px,5.5vw,46px)">CHOOSE YOUR PILOT</div>
+  <div class="tagline">Pick who flies the next planet!</div>
+  <div class="pilots">
+    <div class="pilot" data-cp="bear" tabindex="0">
+      <img src="assets/starbear.png" alt="Star Bear">
+      <h3>Star Bear</h3>
+      <p>Steady paws. Sharp eyes. Big snacks.</p>
+      <span class="pick">FLY AS STAR BEAR</span>
+    </div>
+    <div class="pilot" data-cp="zeeb" tabindex="0">
+      <img src="assets/zeebrina.png" alt="Zeebrina">
+      <h3>Zeebrina</h3>
+      <p>Fast stripes. Faster lasers. Fabulous.</p>
+      <span class="pick">FLY AS ZEEBRINA</span>
+    </div>
+  </div>
+</div>
+
 <!-- STAR MAP -->
 <div id="map" class="overlay hidden">
   <div class="logo" style="font-size:clamp(26px,5.5vw,46px)">⭐ STAR MAP ⭐</div>
@@ -565,8 +585,20 @@ function levelClear(){
 }
 $("#mapBtn").addEventListener("click",()=>{
   $("#clear").classList.add("hidden");
+  $("#repilot").classList.remove("hidden");
+});
+async function changePilot(c){
+  pilot=c;wingmate=c==="bear"?"zeeb":"bear";
+  if(!IMGS[c]){IMGS[c]=keyOut(await loadImg(PILOTS[c].img));}
+  if(!IMGS[wingmate])loadImg(PILOTS[wingmate].img).then(function(i){IMGS[wingmate]=keyOut(i);});
+  shipCv=makeShip(PILOTS[pilot].ship,IMGS[c],PILOTS[pilot].crop);
+  $("#repilot").classList.add("hidden");
   level++;
   showMap();
+}
+document.querySelectorAll("[data-cp]").forEach(function(el){
+  el.addEventListener("click",function(){changePilot(el.dataset.cp);});
+  el.addEventListener("keydown",function(e){if(e.key==="Enter")changePilot(el.dataset.cp);});
 });
 
 function renderMap(){
