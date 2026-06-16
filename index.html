@@ -124,6 +124,7 @@
 </head>
 <body>
 <canvas id="game"></canvas>
+<audio id="bgm" src="assets/zeebrina.mp3" loop preload="auto"></audio>
 
 <!-- HUD -->
 <div id="hud" class="hidden">
@@ -238,6 +239,12 @@ function drawCard(){
 
 /* ============================================================ audio */
 let AC=null,muted=localStorage.getItem("sw_muted")==="1";
+const bgm=document.getElementById("bgm");
+bgm.volume=0.35;
+function bgmSync(){bgm.muted=muted;}
+bgmSync();
+function bgmPlay(){if(bgm.paused)bgm.play().catch(function(){});}
+
 function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==="suspended")AC.resume(); return AC; }
 function tone(freq,dur,type,vol,slide){
   if(muted)return; const a=ac(),t=a.currentTime;
@@ -791,13 +798,14 @@ window.addEventListener("focus",()=>{paused=false;last=performance.now();});
 /* mute */
 const muteBtn=$("#muteBtn");
 function updMute(){muteBtn.textContent=muted?"🔇":"🔊";}
-muteBtn.addEventListener("click",()=>{muted=!muted;localStorage.setItem("sw_muted",muted?"1":"0");if(muted&&typeof speechSynthesis!=="undefined")speechSynthesis.cancel();updMute();});
+muteBtn.addEventListener("click",()=>{muted=!muted;localStorage.setItem("sw_muted",muted?"1":"0");if(muted&&typeof speechSynthesis!=="undefined")speechSynthesis.cancel();bgmSync();updMute();});
 updMute();
 
 /* ============================================================ flow */
 async function pickPilot(c){
   pilot=c;wingmate=c==="bear"?"zeeb":"bear";
   ac(); // unlock audio on this gesture
+  bgmPlay();
   if(!IMGS[c]){ IMGS[c]=keyOut(await loadImg(PILOTS[c].img)); }
   if(!IMGS[wingmate])loadImg(PILOTS[wingmate].img).then(i=>IMGS[wingmate]=keyOut(i)); // warm for toasts later (uses raw img anyway)
   shipCv=makeShip(PILOTS[pilot].ship,IMGS[c],PILOTS[pilot].crop);
